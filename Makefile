@@ -11,7 +11,7 @@ CLEAR			= \r\033[K
 
 # variables
 NAME			= inception
-#CONTAINERS
+CONTAINERS		= $(shell docker ps -a -q)
 #VOLUMES
 #HOSTS
 #EXPECTED
@@ -20,21 +20,32 @@ NAME			= inception
 all: start
 
 init:
-	@mkdir -p ~/data/wordpress
-	@mkdir -p ~/data/uptime-kuma
 	@mkdir -p ~/data/mariadb
+#	@mkdir -p ~/data/wordpress
+#	@mkdir -p ~/data/uptime-kuma
 
 #check-hosts:
 
-#start:
+start:
+		@docker-compose -f ./srcs/docker-compose.yml up -d --build
+		@printf "${CLEAR}${RESET}${GREY}─────────────────────────────────────────────────────\n"\
+	"${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: ${NAME} has cooked with ${GREEN}success${RESET}.${GREY}\n"\
+	"${RESET}${GREY}─────────────────────────────────────────────────────\n${RESET}"
 
-#stop:
+
+stop:
+ifneq ($(CONTAINERS),)
+	@docker-compose -f ./srcs/docker-compose.yml down
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Containers stopped ${GREEN}successfully ${RESET}.\n"
+else
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: There's ${RED}nothing ${RESET}to stop.\n${RESET}"
+endif
 
 #status:
 
-#clean: stop
+clean: stop
 
 fclean: clean
-			@rm -rf ~/data
+		@rm -rf ~/data
 
 .PHONY: all start stop status clean fclean
