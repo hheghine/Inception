@@ -8,7 +8,7 @@ RUN apk update \
 
 # Copy files
 COPY ./tools/db_installer.sh /tmp/db_installer.sh
-COPY ./conf/my.cnf /etc/mysql/my.cnf
+COPY ./config/db.cnf /etc/mysql/db.cnf
 RUN chmod +x /tmp/db_installer.sh
 
 # Expose ports

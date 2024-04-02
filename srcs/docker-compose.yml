@@ -5,8 +5,19 @@ networks:
     driver: bridge
 
 services:
+
+  # Mandatory services
   mariadb:
+    build: ./requirements/mariadb
+    container_name: mariadb
     image: mariadb
+    restart: on-failure
     networks:
       - inception
+    env_file:
+      - env.template
+    volumes:
+      - mariadb:/var/lib/mysql
 
+volumes:
+  mariadb:
