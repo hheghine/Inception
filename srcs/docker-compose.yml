@@ -19,6 +19,18 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
 
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    image: nginx
+    restart: on-failure
+    ports:
+      - "443:443"
+    networks:
+      - inception
+    env_file:
+      - env.template
+
 
 
 volumes:
