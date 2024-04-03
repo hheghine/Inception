@@ -8,12 +8,6 @@
     <img src="https://github.com/hheghine/Inception/assets/119530584/500381cb-b29d-4a66-abc9-65d60ddd7335" style="width: 27%;" />
 </div>
 
-
-
-
-
-
-
 ## Introduction
 
 The goal of the project is to containerize a simple web application infrastructure using Docker Compose.
