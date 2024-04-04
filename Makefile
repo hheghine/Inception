@@ -22,7 +22,7 @@ all: start
 
 init:
 	@mkdir -p ~/data/mariadb
-#	@mkdir -p ~/data/wordpress
+	@mkdir -p ~/data/wordpress
 #	@mkdir -p ~/data/uptime-kuma
 
 #check-hosts:
@@ -54,5 +54,6 @@ clean: stop
 
 fclean: clean
 		@rm -rf ~/data
+		@docker system prune -a
 
 .PHONY: all start init stop status clean fclean
