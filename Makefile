@@ -36,24 +36,44 @@ start: init
 
 stop:
 ifneq ($(CONTAINERS),)
-	@docker-compose -f ./srcs/docker-compose.yml down
+	@docker-compose -f ./srcs/docker-compose.yml stop
 	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Containers stopped ${GREEN}successfully${RESET}.\n"
 else
 	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: There's ${RED}nothing ${RESET}to stop.\n${RESET}"
 endif
 
+down:
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Dropping containers... ${GREEN}successfully${RESET}.\n"
+	@docker-compose -f ./srcs/docker-compose.yml down
+	@printf "${CLEAR}${RESET}${GREEN}Done!{RESET}.\n"
+
+hard_down:
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Dropping containers and removing volumes... ${GREEN}successfully${RESET}.\n"
+	@docker-compose -f ./srcs/docker-compose.yml down -v
+	@printf "${CLEAR}${RESET}${GREEN}Done!{RESET}.\n"
+
 status:
 ifneq ($(CONTAINERS),)
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: ${}Displaying containers ${PURPLE}status${RESET}...\n${RESET}"
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: ${}Displaying containers ${PURPLE}status${RESET}...\n\n${RESET}"
 	@docker ps -a
 else
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: There's ${RED}nothing ${RESET}to display.\n${RESET}"
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: There's ${RED}nothing ${RESET}to display.\n\n${RESET}"
 endif
 
-clean: stop
+rm:
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Removing stopped service containers... ${GREEN}successfully${RESET}.\n"
+	@docker-compose -f ./srcs/docker-compose.yml rm
+	@printf "${CLEAR}${RESET}${GREEN}Done!{RESET}.\n"
+
+clean:
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Cleaning docker containers... ${GREEN}successfully${RESET}.\n"
+	@docker kill $(docker ps -q) 2> /dev/null || true
+	@docker rm $(docker ps -aq) 2> /dev/null || true
+	@printf "${CLEAR}${RESET}${GREEN}Done!${RESET}.\n"
 
 fclean: clean
-		@rm -rf ~/data
-		@docker system prune -a
+	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Cleaning all docker images, networks, containers... ${GREEN}successfully${RESET}.\n"
+	@docker system prune -a
+	@printf "${CLEAR}${RESET}${GREEN}Done!${RESET}.\n"
 
 .PHONY: all start init stop status clean fclean

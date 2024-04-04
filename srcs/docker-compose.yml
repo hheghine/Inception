@@ -49,6 +49,29 @@ services:
     volumes:
       - wordpress:/var/www/html
 
+  # Bonus services
+  static:
+    build: ./requirements/bonus/static
+    container_name: static
+    image: static
+    restart: on-failure
+    ports:
+      - "4242:4242"
+    networks:
+      - inception
+
+  adminer:
+    build: ./requirements/bonus/adminer
+    container_name: adminer
+    image: adminer
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+
 volumes:
 
   # Mandatory volumes
