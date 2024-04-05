@@ -4,9 +4,7 @@
 	<b><i>Inception is a project from the 42 School that aims to broaden the knowledge of system administration by using Docker.</i></b><br><br>
 </p>
 
-<div align="center">
-    <img src="https://github.com/hheghine/Inception/assets/119530584/500381cb-b29d-4a66-abc9-65d60ddd7335" style="width: 27%;" />
-</div>
+![docker](https://github.com/hheghine/Inception/assets/119530584/ed364958-961e-40f7-b442-4771b149bda5)
 
 ## Introduction
 
