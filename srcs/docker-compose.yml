@@ -1,92 +1,62 @@
-version: '3'
-
-networks:
-  inception:
-    driver: bridge
+version: '3.3'
 
 services:
-
-  # Mandatory services
-  mariadb:
-    build: ./requirements/mariadb
-    container_name: mariadb
-    image: mariadb
-    restart: on-failure
-    networks:
-      - inception
+  nginx:
+    container_name: nginx
+    image: my-nginx
+    build: ./requirements/nginx/
     env_file:
       - .env
-    volumes:
-      - mariadb:/var/lib/mysql
-
-  nginx:
-    build: ./requirements/nginx
-    container_name: nginx
-    image: nginx
-    restart: on-failure
+    restart: always
     ports:
       - "443:443"
     networks:
       - inception
+    volumes:
+      - wordpress-volume:/var/www/html/
+    depends_on:
+      - wordpress
+
+  mariadb:
+    container_name: mariadb
+    image: my-mariadb
+    build: ./requirements/mariadb
     env_file:
       - .env
-    # depends_on:
-    #   - wordpress
-    # volumes:
-    #   - wordpress:/var/www/html
+    restart: always
+    networks:
+      - inception
+    volumes:
+      - mariadb-volume:/var/lib/mysql
 
   wordpress:
-    build: ./requirements/wordpress
     container_name: wordpress
-    image: wordpress
-    restart: on-failure
-    networks:
-      - inception
-    depends_on:
-      - mariadb
+    image: my-wordpress:php-fpm
+    build: ./requirements/wordpress
     env_file:
       - .env
-    volumes:
-      - wordpress:/var/www/html
-
-  # Bonus services
-  static:
-    build: ./requirements/bonus/static
-    container_name: static
-    image: static
-    restart: on-failure
-    ports:
-      - "4242:4242"
-    networks:
-      - inception
-
-  adminer:
-    build: ./requirements/bonus/adminer
-    container_name: adminer
-    image: adminer
-    restart: on-failure
-    ports:
-      - "8080:8080"
+    restart: always
     networks:
       - inception
     depends_on:
       - mariadb
+    volumes:
+      - wordpress-volume:/var/www/html/
 
 volumes:
-
-  # Mandatory volumes
-  mariadb:
+  wordpress-volume:
     driver: local
-    name: mariadb
     driver_opts:
-      type: none
-      device: ~/data/mariadb
+      device: /home/${USER}/data/wordpress
       o: bind
-
-  wordpress:
+      type: none
+  mariadb-volume:
     driver: local
-    name: wordpress
     driver_opts:
-      type: none
-      device: ~/data/wordpress
+      device: /home/${USER}/data/mariadb
       o: bind
+      type: none
+
+networks:
+  inception:
+    driver: bridge

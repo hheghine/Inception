@@ -1,79 +1,50 @@
-#!/bin/bash
-
-# color constants
-PURPLE			= \033[38;5;141m
-GREEN			= \033[38;5;46m
-RED				= \033[0;31m
-YELLOW			= \033[0;33m
-GREY			= \033[38;5;240m
+LIGTH_PURPLE	= \033[1;35m
 RESET			= \033[0m
-BOLD			= \033[1m
-CLEAR			= \r\033[K
 
-# variables
-NAME			= inception
-CONTAINERS		= $(shell docker ps -a -q)
-VOLUMES			= $(shell docker volume ls -q)
-#HOSTS
-#EXPECTED
+all: create_dirs up
 
-# rules
-all: start
+create_dirs:
+	@mkdir -p /home/$(USER)/data/mariadb
+	@mkdir -p /home/$(USER)/data/wordpress
+	@echo "${LIGTH_PURPLE}Data directories created.${RESET}"
 
-init:
-	@mkdir -p ~/data/mariadb
-	@mkdir -p ~/data/wordpress
-#	@mkdir -p ~/data/uptime-kuma
+re: fclean all
 
-#check-hosts:
-
-start: init
+up:
+	@echo "${LIGTH_PURPLE}Starting up containers...${RESET}"
 	@docker-compose -f ./srcs/docker-compose.yml up -d --build
-	@printf "${CLEAR}${RESET}${GREY}─────────────────────────────────────────────────────\n"\
-	"${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: ${NAME} has cooked with ${GREEN}success${RESET}.${GREY}\n"\
-	"${RESET}${GREY}─────────────────────────────────────────────────────\n${RESET}"
-	@make -s status
-
-stop:
-ifneq ($(CONTAINERS),)
-	@docker-compose -f ./srcs/docker-compose.yml stop
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Containers stopped ${GREEN}successfully${RESET}.\n"
-else
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: There's ${RED}nothing ${RESET}to stop.\n${RESET}"
-endif
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
 down:
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Dropping containers... ${GREEN}successfully${RESET}.\n"
+	@echo "${LIGTH_PURPLE}Shutting down containers...${RESET}"
 	@docker-compose -f ./srcs/docker-compose.yml down
-	@printf "${CLEAR}${RESET}${GREEN}Done!{RESET}.\n"
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
 hard_down:
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Dropping containers and removing volumes... ${GREEN}successfully${RESET}.\n"
+	@echo "${LIGTH_PURPLE}Shutting down containers and removing volumes...${RESET}"
 	@docker-compose -f ./srcs/docker-compose.yml down -v
-	@printf "${CLEAR}${RESET}${GREEN}Done!{RESET}.\n"
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
-status:
-ifneq ($(CONTAINERS),)
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: ${}Displaying containers ${PURPLE}status${RESET}...\n\n${RESET}"
-	@docker ps -a
-else
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: There's ${RED}nothing ${RESET}to display.\n\n${RESET}"
-endif
+start:
+	@echo "${LIGTH_PURPLE}Starting containers...${RESET}"
+	@docker-compose -f ./srcs/docker-compose.yml start
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
-rm:
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Removing stopped service containers... ${GREEN}successfully${RESET}.\n"
-	@docker-compose -f ./srcs/docker-compose.yml rm
-	@printf "${CLEAR}${RESET}${GREEN}Done!{RESET}.\n"
+stop:
+	@echo "${LIGTH_PURPLE}Stopping containers...${RESET}"
+	@docker-compose -f ./srcs/docker-compose.yml stop
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
-clean:
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Cleaning docker containers... ${GREEN}successfully${RESET}.\n"
-	@docker kill $(docker ps -q) 2> /dev/null || true
-	@docker rm $(docker ps -aq) 2> /dev/null || true
-	@printf "${CLEAR}${RESET}${GREEN}Done!${RESET}.\n"
+clean: down
+	@echo "${LIGTH_PURPLE}Cleaning up containers, volumes, and networks...${RESET}"
+	@docker volume rm srcs_mariadb-volume srcs_wordpress-volume
+	@sudo rm -rf /home/$(USER)/data/wordpress
+	@sudo rm -rf /home/$(USER)/data/mariadb
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
 fclean: clean
-	@printf "${CLEAR}${RESET}${GREEN}»${RESET} [${PURPLE}${BOLD}${NAME}${RESET}]: Cleaning all docker images, networks, containers... ${GREEN}successfully${RESET}.\n"
-	@docker system prune -a
-	@printf "${CLEAR}${RESET}${GREEN}Done!${RESET}.\n"
+	@echo "${LIGTH_PURPLE}Removing Docker images...${RESET}"
+	@docker rmi my-nginx my-mariadb my-wordpress:php-fpm
+	@echo "${LIGTH_PURPLE}Done...${RESET}"
 
-.PHONY: all start init stop status clean fclean
+.PHONY: all re up down hard_down start stop create_dirs remove_volumes

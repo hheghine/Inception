@@ -1,18 +1,21 @@
-FROM alpine:3.16
+FROM debian:bullseye
 
-# Update and install packages
-RUN apk update \
-	&& apk add --no-cache \
-		mariadb \
-		mariadb-client
+RUN apt update \
+	&& apt upgrade -y \
+	&& apt install -y \
+	mariadb-client \
+	mariadb-server \
+	&& apt clean \
+	&& rm -rf /var/lib/apt/lists/*
 
-# Copy files
-COPY ./tools/db_installer.sh /tmp/db_installer.sh
-COPY ./config/my.cnf /etc/mysql/my.cnf
-RUN chmod +x /tmp/db_installer.sh
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-# Expose ports
+COPY tools/run_mariadb.sh /
+
 EXPOSE 3306
 
-# Run script
-CMD ["sh", "/tmp/db_installer.sh"]
+RUN chmod +x run_mariadb.sh
+
+ENTRYPOINT ["./run_mariadb.sh"]
+
+CMD ["mysqld"]
